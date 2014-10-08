@@ -1,0 +1,21 @@
+importFrom("vegan",metaMDS,ordihull,envfit)
+importFrom("flowCore",read.FCS,Subset,rectangleGate,exprs)
+importFrom("EBImage",readImage, Image, channel)
+import(ggplot2)
+importFrom("hexbin", hexbin,hcell2xy)
+import(methods)
+import(grid)
+
+export(
+"fcs_to_img",
+"img_sub",
+"calculate_overlaps_xor",
+"plot_nmds"
+)
+
+exportMethods(
+"fcs_to_img",
+"img_sub",
+"calculate_overlaps_xor",
+"plot_nmds"
+)

@@ -1,0 +1,487 @@
+%\VignetteIndexEntry{Analyze flow cytometric data using histogram information}
+%\VignetteDepends{flowCHIC}
+%\VignetteKeywords{}
+%\VignettePackage{flowCHIC}
+
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\geometry{a4paper,left=20mm,right=30mm, top=2cm, bottom=2cm} 
+\setlength{\parindent}{0ex}
+
+\title{flowCHIC - Analyze flow cytometric data of complex microbial communities based on histogram images}
+\author{Schumann, J., Koch, C., Fetzer, I., M\"uller, S. \\
+        Helmholtz Centre for Environmental Research - UFZ\\
+        Department of Environmental Microbiology\\ }
+
+\date{\today}
+
+\begin{document}
+ \setkeys{Gin}{width=0.55\textwidth} 
+\SweaveOpts{concordance=TRUE}
+\maketitle
+
+
+\begin{abstract}
+CHIC means cytometric histogram image comparison and is a tool for evaluation of cytometric datasets nearly automatically and very fast. CHIC neither requires gate setting procedures nor relies on quantification and binning of event distributions within histograms. The evaluation of histograms using CHIC is based on the main idea that histograms are converted into images thus working person independent and with low computational demand. Although cell specific information is given up in this way it allows, on the other hand, huge datasets to be evaluated within very short time frames. It is, therefore, a tool to visualize cell population or community dynamics and to suggest causes of dynamic variations. The sensitivity of this technique was found to discriminate down to 0.5\% internal variation. On the first hand it was developed for evaluation of cytometric microbial community data but it can also be used for any other cytometric dataset.
+\end{abstract}
+
+\section{Introduction}
+The background of the CHIC tool is published in \cite{koch2013chic}. flowCHIC contains four parts. The first part provides information on cell distributions and their respective abundances in histograms, the second part transforms vector based histograms into PNG images, the third part calculates the values needed for comparing these images and the forth part evaluates the differences based on the calculated values. The first part of flowCHIC directly uses cytometric raw data (usually FCS files) that can be obtained from any cytometric analysis. As the later evaluation occurs on grey value comparison in a starting step arbitrary color keys of cytometric histograms are converted into equally spaced grey graduations. The second part creates images with instrumental noise, bead signals, or axis denominations eliminated by defining a rectangular gate. The third part calculates the overlapping area as well as the sum of all pixel intensities based on XOR operation for each combination of every image. The forth part performs nonmetric multidimensional scaling (NMDS) giving information on how similar/dissimilar certain samples are or how the structure of populations or communities is changing over time. Examples are discussed in \cite{koch2014cytome,koch2014microbiomes} and also given below. To find out the driving forces of population variation the rationale of abiotic parameters such as pH values, temperature, or concentrations of chemicals can be evaluated. By using gate information obtained from flowCyBar \cite{schumann2014R} influences coming from certain subpopulations or subcommunities can also be detected. It needs to be stated that flowCHIC requires datasets that are highly calibrated by using e.g. fuorescent beads. Every shift in the adjustment of a cytometer will be discovered using flowCHIC and will have an influence on the outcome. It is also important that for every sample the same number of cells is measured. flowCHIC can be used for any cytometric  dataset. The strength of the tool lies in its easy application, especially if big datasets needs to be evaluated and its nearly automatic, person-independent application. The tool provides trends in community or population dynamics or informs on stability of cell systems.
+
+\newpage
+
+
+\section{Overview} \label{overview}
+
+\begin{description}
+\item[Creation of images from flow cytometric raw data\label{image}]{The packages flowCore and ggplot2 are used for creating histogram images of flow cytometric raw data.}
+\item[Subsets of the histogram images\label{subset}]{To cut out the noise a subset of each histogram is created.}
+\item[Image analysis with flowViz and EBImage]{The packages flowViz and EBImage are used for analysing the subset histogram images.}
+\item[Similarity calculation\label{r}]{The similarities of the images are calculated using nonmetric multidimensional scaling (NMDS).}
+\end{description}
+
+
+\section{Details}\label{Details}
+
+\subsection{Creation of images from flow cytometric raw data}
+flowCore and ggplot2 are used for creating images of flow cytometric raw data. After the folder containing the FCS files is set as working directory a list with all filenames is saved. The channels of interest are selected and the histogram images are created and saved as PNG image files in a new subfolder called "chic\_images". Note that only two channels are used for this approach. For the next step you need to look at the created images.
+
+\subsection{Subsets of the histogram images}
+Typically, cytometric measurements of microbial communities contain instrumental noise for instrumental adjustment. For the comparism of the samples the noise is not relevant.
+Ensuing from the created histogram images a rectangular region is defined to cut out the noise from each image. It is very important to set the boundaries correct which means that the selected region should only include relevant information. The boundaries are only set once so you should check if they are suitable for every image. The resulting subset images are saved as PNG image files in a new subfolder called "chic\_subset". To check the boundaries look at the images located in this subfolder.
+
+
+\subsection{Image analysis with flowViz and EBImage}
+At first, a list with all filenames of the subset histogram images is saved. The overlap and XOR images are calculated, the areas and intensities are returned and can be saved as text files. The overlap area describes the number of informative pixels of two images. The XOR operation highlights the differences between two images. This procedure is described more detailed in \cite{koch2013chic}.
+
+\subsection{Similarity calculation}
+The similarities found in the processed images are calculated using nonmetric multidimensional scaling. Therefore, a dissimilarity matrix is calculated based on the intensities of the XOR image and the overlap area fo every image pair. The results are shown as an NMDS plot. In addition, a cluster analysis can be performed to reveal samples with high similarities. For additional information see \cite{koch2013chic}.
+
+
+\section{Example data}\label{sec:data}
+For the next sections the FCS files that are included to the package and two datasets from the CHIC paper \cite{koch2013chic} will serve as examples. These datasets are published on the FlowRepository online database. They can be downloaded from \href{https://flowrepository.org/id/FR-FCM-ZZ42}{\underline{https://flowrepository.org/id/FR-FCM-ZZ42}} and from \href{http://flowrepository.org/id/FR-FCM-ZZ43}{\underline{http://flowrepository.org/id/FR-FCM-ZZ43}}. See the CHIC paper for more information about these datasets. At the bottom left corner you can download the FCS files of the corresponding dataset. For using the datasets save all the FCS files of one dataset in one folder. The FCS files that are included to the package are part of the first dataset.
+
+\section{Methods}\label{sec:methods}
+
+This section gives an overview of the methods that are included in the package. For all parts the FCS files that are included to the package are used for demonstration. In the last part the results are also shown for the two downloadable datasets (see above).
+
+
+\subsection{Creating histogram images}
+
+First of all the package has to be loaded in R.
+
+<<loadPackage,echo=TRUE,results=hide>>=
+# Load package
+library(flowCHIC)
+@
+
+For creating the histogram images the folder containing the FCS files should be set as working directory and a list with the filenames of all FCS files should be saved. In this example it is also shown how to create this list if you want to use the FCS files that are attached to this package. These files are also used for the next parts. Then the X parameter (channel 1) and Y parameter (channel 2) used for creating the histogram images have to be set. You can check the names of the parameters/channels of your FCS files like the following:
+
+<<GetChannels,echo=TRUE,results=hide,eval=FALSE>>=
+# Set the working directory to the path where your FCS files are located
+# Type the path into the quotes
+setwd("") 
+# Or in Windows use
+setwd(choose.dir(getwd(), "Choose the folder containing the FCS files"))
+# Get a list of the filenames of the FCS files located in your working directory
+files <- list.files(getwd(),full=TRUE,pattern="*.fcs")
+# Get a list of the filenames of the FCS files included to the package
+files <- list.files(system.file("extdata",package="flowCHIC"),
+full=TRUE,pattern="*.fcs")
+# Read the first FCS file as flowFrame
+frame <- read.FCS(files[1],alter.names=TRUE,transformation=FALSE) 
+# Get a list of the parameter/channel names
+unname(frame@parameters@data$name)
+@
+
+Both parameters/channels are used for every FCS file. The default parameters/channels are "FS.Log" and "FL.4.Log". Note that the FCS files included to this package only contain the channels "FS.Log" and "FL.4.Log". Maybe there are some warning messages printed to the R console. They have no effect on the results.
+
+<<CreateImage,echo=TRUE,results=hide,eval=FALSE>>=
+# Create the histogram images using default parameters
+fcs_to_img(files)
+# Create the histogram images using different channels
+# Not working for the FCS files of the package
+fcs_to_img(files,ch1="SS.Log",ch2="FL.1.Log")
+@
+
+A new subfolder called "chic\_images" is created in the working directory containing the histogram images of all FCS files.
+
+
+\subsection{Creating subsets of histogram images}
+
+For creating the subsets the list with the filenames of the FCS files from section 5.1 is used again. Now, a rectangular region is defined to cut out the noise from each image. Therefore, the parameters \texttt{"x\_start"} (default=0), \texttt{"x\_end"} (default=4095), \texttt{"y\_start"} (default=0) and \texttt{"y\_end"} (default=4095) are used to set the boundaries. The default values of the rectangular gate represent the whole histogram image if the values of the parameters/channels are stored on log scale. Again, the parameters/channels for creating the subset images are set. They should be equal to the parameters/channels used for creating the histogram images in section 5.1.
+
+<<CreateSubset,echo=TRUE,results=hide,eval=FALSE>>=
+# Create the histogram image subsets using default parameters
+img_sub(files,ch1="FS.Log",ch2="FL.4.Log")
+@
+
+A new folder called "chic\_subset" containing the subset histogram images of all FCS files is created in the working directory.\\
+
+The boundaries are changed to create subset images that only contain relevant information (see section 3.2). The parameters \texttt{"xbin"} and \texttt{"maxv"} can be changed in this part, too. \texttt{"xbin"} describes the number of bins within the histogram and can be seen as the resolution of the data values. The default value (128) is taken over from the CHIC paper \cite{koch2013chic} and doesn't need to be changed in most cases. \texttt{"maxv"} describes the maximal value of the expressions within the histogram that is set to the highest color value (black). \newpage This parameter depends on the data and may be adapted. Usually, we are working with samples containing a very high number of events and very different distributions regarding to the abundance of a subcommunity. The default value (200) works well in this case. If the distributions are more similar this value should be decreased. In practice, values between 130 and 200 revealed the best results.
+
+<<CreateChangedSubset,echo=TRUE,results=hide,eval=FALSE>>=
+# Create the histogram images using different boundaries for the x/y axis
+# and a different value for the maximal value set to black
+# These values work well for the first downloadable dataset and 
+# the FCS files included to the package
+img_sub(files,x_start=200,x_end=3500,y_start=1000,y_end=3000,maxv=160)
+@
+
+\subsection{Image analysis}
+
+At first, save the filenames of all subset image files as a list. The next method calculates the overlap and XOR images for each combination of every image from this list. To continue with the next part save the returned values as a list called "results".
+
+
+<<CalculateXorOver,echo=TRUE,results=hide,eval=FALSE>>=
+# Save the names of all subset images as a list
+subsets <- list.files(path=paste(getwd(),"chic_subset",sep="/"),full=TRUE,pattern="*.png")
+# Calculate overlap and XOR images and write values to two new files
+results<-calculate_overlaps_xor(subsets)
+@
+
+You can also save the calculated values to text files.
+
+<<CalculateXorOver_files,echo=TRUE,results=hide,eval=FALSE>>=
+# Save the names of all subset images as a list
+subsets <- list.files(path=paste(getwd(),"chic_subset",sep="/"),full=TRUE,pattern="*.png")
+# Calculate overlap and XOR images and write values to two new files
+calculate_overlaps_xor(subsets,verbose=TRUE)
+@
+
+
+Two files called \texttt{"Results\_overlaps.txt"} and \texttt{"Results\_xor.txt"} are created in the working directoy. The file \texttt{"Results\_overlaps.txt"} contains the number of pixel within the overlapping area for each combination of every subset histogram image. The file \texttt{"Results\_xor.txt"} contains the sum of all pixel values of the XOR images for each combination of every subset histogram image. These are the same values that are returned and saved to the list "results" in the example before.
+
+
+\subsection{Calculating the similarities}
+The last part includes the calculation of the similarities found in the histogram images of cytometric data. NMDS (nonmetric multidimensional scaling) is a mathematical technique to visualize the distances between the samples. The distances within the plot are used to be in accordance with the dis-/similarities of the respective samples.
+For more details see \cite{koch2013chic}. After finishing the previous part you can use the values saved to the returned list called "results" or you can read the created text files in R.
+
+Use the retuned values to show the similarities of these 3 samples. A NMDS plot is displayed using the names of the samples as data point texts. By default the plotting symbols are black circles. The position of the text is below the data points. The order and the number of the samples is printed to the R console.
+
+<<NMDSXorOverlapList,echo=TRUE,results=hide,eval=FALSE>>=
+# Show a NMDS plot of the samples
+plot_nmds(results$overlap,results$xor) 
+@
+
+If you saved the values as text files you first have to read them in R.
+
+<<readOverXor,echo=TRUE,results=hide,eval=FALSE>>=
+# Type the filename of the overlap data (including extension) into the quotes
+Results_overlaps<-read.table("Results_overlaps.txt",header=TRUE,sep="\t")  
+# Type the filename of the XOR data (including extension) into the quotes
+Results_xor<-read.table("Results_xor.txt",header=TRUE,sep="\t")  
+@
+
+
+Then you can use them to to create the NMDS plot as well.
+
+
+<<NMDSXorOverlapRead,echo=TRUE,results=hide,eval=FALSE>>=
+# Show a NMDS plot of the samples
+plot_nmds(Results_overlaps,Results_xor) 
+@
+
+The attached datasets \texttt{Results\_overlaps} and \texttt{Results\_xor} contain the same values and are used to show the result.
+
+\newpage
+
+The content of Results\_overlaps looks as follows:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lr}
+Label &  Area\\
+overlap\_BCK\_30\_Sep\_11\_21\_\&\_BCK\_30\_Sep\_11\_30.png & 51941\\
+overlap\_BCK\_30\_Sep\_11\_21\_\&\_BCK\_30\_Sep\_11\_77.png & 51625\\
+overlap\_BCK\_30\_Sep\_11\_30\_\&\_BCK\_30\_Sep\_11\_77.png & 50736\\
+\end{tabular}
+\captionsetup{font=footnotesize}
+\caption{Content of Results\_overlaps}
+\label{overlaps}
+\end{table}
+
+
+The content of Results\_xor looks as follows:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lr}
+Label &  IntDen\\
+overlap\_BCK\_30\_Sep\_11\_21\_\&\_BCK\_30\_Sep\_11\_30.png & 390644010\\
+overlap\_BCK\_30\_Sep\_11\_21\_\&\_BCK\_30\_Sep\_11\_77.png & 347357340\\
+overlap\_BCK\_30\_Sep\_11\_30\_\&\_BCK\_30\_Sep\_11\_77.png & 313110630\\
+\end{tabular}
+\captionsetup{font=footnotesize}
+\caption{Content of Results\_xor}
+\label{XOR}
+\end{table}
+
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotDefault,fig=TRUE,width=10,height=7,results=hide>>=
+# Load datasets
+data(Results_overlaps)
+data(Results_xor)
+# Show a NMDS plot of the samples
+plot_nmds(Results_overlaps,Results_xor) 
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples included to the package using default parameters}
+\label{fig:fig1plot}
+\end{figure}
+
+Instead of the default parameters the plotting symbols can be changed e.g. to red triangles. The text can be set above the data points and a title can be added to the plot.
+
+\newpage
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotDefaultChanged,fig=TRUE,width=10,height=7,results=hide>>=
+# Change default parameters
+plot_nmds(Results_overlaps,Results_xor,main="NMDS plot",pos=3,pch=2,col_nmds="red")
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples included to the package using different parameters}
+\label{fig:fig2plot}
+\end{figure}
+
+In the following the datasets \texttt{Results\_overlaps\_mix}, \texttt{Results\_xor\_mix}, \texttt{Results\_overlaps\_incol} and \texttt{Results\_xor\_incol} are used for demonstration and the influence of different parameter settings of the method on the resulting NMDS plot (e.g. groups, colors). All of them are attached to the package.\\ \newline
+\texttt{Results\_overlaps\_mix} and \texttt{Results\_xor\_mix} contain the results after performing the last three steps on the first downloadable dataset. \texttt{Results\_overlaps\_incol} and \texttt{Results\_xor\_incol} contain the results after performing the last three steps on the second downloadable dataset. For the second dataset the boundaries for creating the subset histogram images were adapted. The contents of these datasets (excerpts) are shown before the plots.
+\newpage
+
+<<overlapsmix, echo=TRUE>>=
+# Load dataset
+data(Results_overlaps_mix) 
+# Show data (first five lines)
+Results_overlaps_mix[1:5,]
+@
+
+
+<<xormix, echo=TRUE>>=
+# Load dataset
+data(Results_xor_mix)
+# Show data (first five lines)
+Results_xor_mix[1:5,]
+@
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotDefault_mix,fig=TRUE,width=14,height=8.5,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_mix,Results_xor_mix)
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the first dataset using default parameters}
+\label{fig:fig3plot}
+\end{figure}
+
+\newpage
+
+<<overlapsincol, echo=TRUE>>=
+# Load dataset
+data(Results_overlaps_incol) 
+# Show data (first five lines)
+Results_overlaps_incol[1:5,]
+@
+
+<<xorincol, echo=TRUE>>=
+# Load dataset
+data(Results_xor_incol)
+# Show data (first five lines)
+Results_xor_incol[1:5,]
+@
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotDefault_incol,fig=TRUE,width=9,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol)
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset using default parameters}
+\label{fig:fig4plot}
+\end{figure}
+
+\newpage
+
+The samples can be classified into groups manually. Therefore, every sample has to be assigned to one group. In this example 17 samples are assigned to three different groups using the data frame \texttt{groups}. 
+
+The data frame looks as follows:
+
+<<Groups,verbatim=TRUE,echo=TRUE,results=hide>>=
+# Create data frame with group assignments
+groups<-data.frame("groups"=c(15,19,19,19,15,22,19,15,22,15,15,22,22,22,22,19,19))
+@
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lr}
+&groups\\
+1&15 \\
+2&19 \\
+3&19 \\
+4&19 \\
+5&15 \\
+6&22 \\
+7&19 \\
+8&15 \\
+9&22\\
+10&15\\   
+11&15\\ 
+12&22\\ 
+13&22\\ 
+14&22\\
+15&22\\ 
+16&19\\ 
+17&19\\ 
+\end{tabular}
+\caption{Group assignments}
+\label{groups}
+\end{table}
+
+This data frame has seventeen entries and describes the assignment of every sample to one group (three groups overall in this example). Every sample is assigned to one value (1-25) so the same value means the same group. Up to 25 groups are possible (as only 25 plotting symbols are available).\\ \newline
+It is also possible to read a text file containing as many lines as samples whereas every line contains one value that assigns the sample to the respective group. The samples can be grouped by e.g. treatment, day of sampling or personal preferences. Always make sure to check the order of the samples. The order and the number of the samples is printed to the R console after calling the \texttt{plot\_nmds()} method.
+
+\newpage
+
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotGroup_incol,fig=TRUE,width=9,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol,group=groups)
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset with group assignment}
+\label{fig:fig5plot}
+\end{figure}
+
+
+In addition, abiotic parameters/gate information can be added to the NMDS plot suggesting the differences found within the plot. In this example the attached dataset \texttt{abiotic\_incol} is used for demonstration. This dataset contains abiotic data for every sample. The content looks as follows (excerpt):
+
+<<abioticincol, echo=TRUE>>=
+# Load dataset
+data(abiotic_incol)
+# Show data (first five lines)
+abiotic_incol[1:5,]
+@
+
+\newpage
+
+It is important that the order and the number of the lines are identical to the order and the number of the samples printed in R. Otherwise, the output will be wrong since association of abiotic data with their samples will fail. The significance level p is set to 0.05 and the color used for plotting is set to \texttt{"magenta"} by default. If p is changed to 1 all abiotic parameters will be shown.
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotAbiotic_incol,fig=TRUE,width=9,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol,
+          abiotic=abiotic_incol[,-1])
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset with abiotic parameters}
+\label{fig:fig6plot}
+\end{figure}
+
+\newpage
+
+Grouping and plotting abiotic parameters/gate information can be combined in one plot.
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotAbioticGroup_incol,fig=TRUE,width=9,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol,group=groups,abiotic=abiotic_incol[,-1])
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset with group assignment and abiotic parameters}
+\label{fig:fig7plot}
+\end{figure}
+
+\newpage
+
+Now, the legend is placed to the top right corner of the plot, the color of the arrows is changed to \texttt{"darkred"} and the maximum p-value is set to 0.01. All abiotic parameters/gate information less or equal the maximum p-value are added to the plot. The number of parameters may change due the results of the NMDS plot are a little bit different everytime the method is called.
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotAbioticGroup_incolchanged,fig=TRUE,width=9,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol,group=groups,
+          legend_pos="topright",abiotic=abiotic_incol[,-1],
+          p.max=0.01,col_abiotic="darkred")
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset with group assignment, abiotic parameters and changed plotting parameters}
+\label{fig:fig8plot}
+\end{figure}
+
+\newpage
+
+In addition, dendrograms can be shown to reveal clusters (samples with high similarity) within the data.
+
+\begin{figure}[h]
+\begin{center}
+\setkeys{Gin}{width=1.0\textwidth} 
+\setkeys{Gin}{height=4in} 
+<<label=plotAbioticGroup_incolchanged_cluster,fig=TRUE,width=14,height=7,results=hide>>=
+# Plot
+plot_nmds(Results_overlaps_incol,Results_xor_incol,show_cluster=TRUE,group=groups,
+          legend_pos="topright",abiotic=abiotic_incol[,-1],
+          p.max=0.01,col_abiotic="darkred")
+@
+\end{center}
+\setlength{\abovecaptionskip}{-5pt}
+\captionsetup{font=footnotesize}
+\caption{NMDS plot of the samples of the second dataset with group assignment, abiotic parameters, changed plotting parameters and cluster dendrogram}
+\label{fig:fig9plot}
+\end{figure}
+
+The results of the metaMDS method and the p-values of the abiotic parameters can also be printed to the R console.
+
+<<label=plotAbioticGroup_incolchanged_verbose,fig=TRUE,width=14,height=7,results=hide,eval=FALSE>>=
+# Plot and print results
+plot_nmds(Results_overlaps_incol,Results_xor_incol,show_cluster=TRUE,group=groups,
+          legend_pos="topright",abiotic=abiotic_incol[,-1],
+          p.max=0.01,col_abiotic="darkred",verbose=TRUE)
+@
+
+\bibliographystyle{apalike}
+\bibliography{flowCHICmanual}
+\end{document}
