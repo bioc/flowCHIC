@@ -39,7 +39,7 @@ The background of the CHIC tool is published in \cite{koch2013chic}. flowCHIC co
 
 \begin{description}
 \item[Creation of images from flow cytometric raw data\label{image}]{The packages flowCore and ggplot2 are used for creating histogram images of flow cytometric raw data.}
-\item[Subsets of the histogram images\label{subset}]{To cut out the noise a subset of each histogram is created.}
+\item[Subsets of the histogram images\label{subset}]{A subset of each histogram is created to define the area containing only relevant information and exclude the noise.}
 \item[Image analysis with flowViz and EBImage]{The packages flowViz and EBImage are used for analysing the subset histogram images.}
 \item[Similarity calculation\label{r}]{The similarities of the images are calculated using nonmetric multidimensional scaling (NMDS).}
 \end{description}
@@ -63,7 +63,7 @@ The similarities found in the processed images are calculated using nonmetric mu
 
 
 \section{Example data}\label{sec:data}
-For the next sections the FCS files that are included to the package and two datasets from the CHIC paper \cite{koch2013chic} will serve as examples. These datasets are published on the FlowRepository online database. They can be downloaded from \href{https://flowrepository.org/id/FR-FCM-ZZ42}{\underline{https://flowrepository.org/id/FR-FCM-ZZ42}} and from \href{http://flowrepository.org/id/FR-FCM-ZZ43}{\underline{http://flowrepository.org/id/FR-FCM-ZZ43}}. See the CHIC paper for more information about these datasets. At the bottom left corner you can download the FCS files of the corresponding dataset. For using the datasets save all the FCS files of one dataset in one folder. The FCS files that are included to the package are part of the first dataset.
+For the next sections the FCS files that are included to the package and two datasets from the CHIC paper \cite{koch2013chic} will serve as examples. These datasets are published on the FlowRepository online database. They can be downloaded from \href{https://flowrepository.org/id/FR-FCM-ZZ42}{\underline{https://flowrepository.org/id/FR-FCM-ZZ42}} and from \href{http://flowrepository.org/id/FR-FCM-ZZ43}{\underline{http://flowrepository.org/id/FR-FCM-ZZ43}}. See the CHIC paper for more information about these datasets. At the bottom left corner you can download the FCS files of the corresponding dataset. For using the datasets save all the FCS files of one dataset in one folder. The FCS files that are included to the package are selected from the first dataset.
 
 \section{Methods}\label{sec:methods}
 
@@ -79,7 +79,7 @@ First of all the package has to be loaded in R.
 library(flowCHIC)
 @
 
-For creating the histogram images the folder containing the FCS files should be set as working directory and a list with the filenames of all FCS files should be saved. In this example it is also shown how to create this list if you want to use the FCS files that are attached to this package. These files are also used for the next parts. Then the X parameter (channel 1) and Y parameter (channel 2) used for creating the histogram images have to be set. You can check the names of the parameters/channels of your FCS files like the following:
+For creating the histogram images the folder containing the FCS files should be set as working directory and a list with the filenames of all FCS files should be saved. In this example it is also shown how to create this list if you want to use the FCS files that are attached to this package. These files are also used for the next parts. Then the X parameter (channel 1) and Y parameter (channel 2) used for creating the histogram images have to be set. You can check the names of the parameters/channels of your FCS files in the following way:
 
 <<GetChannels,echo=TRUE,results=hide,eval=FALSE>>=
 # Set the working directory to the path where your FCS files are located
@@ -104,7 +104,7 @@ Both parameters/channels are used for every FCS file. The default parameters/cha
 # Create the histogram images using default parameters
 fcs_to_img(files)
 # Create the histogram images using different channels
-# Not working for the FCS files of the package
+# Not working for the FCS files attached to the package
 fcs_to_img(files,ch1="SS.Log",ch2="FL.1.Log")
 @
 
@@ -113,7 +113,7 @@ A new subfolder called "chic\_images" is created in the working directory contai
 
 \subsection{Creating subsets of histogram images}
 
-For creating the subsets the list with the filenames of the FCS files from section 5.1 is used again. Now, a rectangular region is defined to cut out the noise from each image. Therefore, the parameters \texttt{"x\_start"} (default=0), \texttt{"x\_end"} (default=4095), \texttt{"y\_start"} (default=0) and \texttt{"y\_end"} (default=4095) are used to set the boundaries. The default values of the rectangular gate represent the whole histogram image if the values of the parameters/channels are stored on log scale. Again, the parameters/channels for creating the subset images are set. They should be equal to the parameters/channels used for creating the histogram images in section 5.1.
+For creating the subsets the list with the filenames of the FCS files from section 5.1 is used again. Now, a rectangular region is defined to cut out the noise from each image. Therefore, the parameters \texttt{"x\_start"} (default=0), \texttt{"x\_end"} (default=4095), \texttt{"y\_start"} (default=0) and \texttt{"y\_end"} (default=4095) are used to set the boundaries. The default values of the rectangular gate represent the whole histogram image if the values of the parameters/channels are stored on log scale. Again, the parameters/channels for creating the subset images are set. They should be equal to the parameters/channels used for creating the histogram images in section 5.1. \newpage
 
 <<CreateSubset,echo=TRUE,results=hide,eval=FALSE>>=
 # Create the histogram image subsets using default parameters
@@ -122,7 +122,7 @@ img_sub(files,ch1="FS.Log",ch2="FL.4.Log")
 
 A new folder called "chic\_subset" containing the subset histogram images of all FCS files is created in the working directory.\\
 
-The boundaries are changed to create subset images that only contain relevant information (see section 3.2). The parameters \texttt{"xbin"} and \texttt{"maxv"} can be changed in this part, too. \texttt{"xbin"} describes the number of bins within the histogram and can be seen as the resolution of the data values. The default value (128) is taken over from the CHIC paper \cite{koch2013chic} and doesn't need to be changed in most cases. \texttt{"maxv"} describes the maximal value of the expressions within the histogram that is set to the highest color value (black). \newpage This parameter depends on the data and may be adapted. Usually, we are working with samples containing a very high number of events and very different distributions regarding to the abundance of a subcommunity. The default value (200) works well in this case. If the distributions are more similar this value should be decreased. In practice, values between 130 and 200 revealed the best results.
+The boundaries are changed to create subset images that only contain relevant information (see section 3.2). The parameters \texttt{"xbin"} and \texttt{"maxv"} can be changed in this part, too. \texttt{"xbin"} describes the number of bins within the histogram and can be seen as the resolution of the data values. The default value (128) is taken over from \cite{koch2013chic}. The default value will probably work for most measurements recorded under similar settings (diverse microbial community, 200.000 to 250.000 recorded events). For very different applications see \cite{koch2013chic} for a possible way of optimizing the resolution. \texttt{"maxv"} describes the maximal value of the expressions within the histogram that is set to the highest color value (black). This parameter depends on the data and may be adapted. Usually, we are working with samples containing a very high number of events and very different distributions regarding to the abundance of a subcommunity. The default value (200) works well in this case. If the distributions are more similar this value should be decreased. In practice, values between 130 and 200 revealed the best results.
 
 <<CreateChangedSubset,echo=TRUE,results=hide,eval=FALSE>>=
 # Create the histogram images using different boundaries for the x/y axis
@@ -156,6 +156,7 @@ calculate_overlaps_xor(subsets,verbose=TRUE)
 
 Two files called \texttt{"Results\_overlaps.txt"} and \texttt{"Results\_xor.txt"} are created in the working directoy. The file \texttt{"Results\_overlaps.txt"} contains the number of pixel within the overlapping area for each combination of every subset histogram image. The file \texttt{"Results\_xor.txt"} contains the sum of all pixel values of the XOR images for each combination of every subset histogram image. These are the same values that are returned and saved to the list "results" in the example before.
 
+\newpage
 
 \subsection{Calculating the similarities}
 The last part includes the calculation of the similarities found in the histogram images of cytometric data. NMDS (nonmetric multidimensional scaling) is a mathematical technique to visualize the distances between the samples. The distances within the plot are used to be in accordance with the dis-/similarities of the respective samples.
@@ -167,6 +168,7 @@ Use the retuned values to show the similarities of these 3 samples. A NMDS plot 
 # Show a NMDS plot of the samples
 plot_nmds(results$overlap,results$xor) 
 @
+
 
 If you saved the values as text files you first have to read them in R.
 
@@ -186,9 +188,8 @@ Then you can use them to to create the NMDS plot as well.
 plot_nmds(Results_overlaps,Results_xor) 
 @
 
-The attached datasets \texttt{Results\_overlaps} and \texttt{Results\_xor} contain the same values and are used to show the result.
+The attached datasets \texttt{Results\_overlaps} and \texttt{Results\_xor} contain the same values and are used to show the result. \\ \newline
 
-\newpage
 
 The content of Results\_overlaps looks as follows:
 
@@ -221,6 +222,7 @@ overlap\_BCK\_30\_Sep\_11\_30\_\&\_BCK\_30\_Sep\_11\_77.png & 313110630\\
 \label{XOR}
 \end{table}
 
+\newpage
 
 \begin{figure}[h]
 \begin{center}
@@ -259,7 +261,7 @@ plot_nmds(Results_overlaps,Results_xor,main="NMDS plot",pos=3,pch=2,col_nmds="re
 \label{fig:fig2plot}
 \end{figure}
 
-In the following the datasets \texttt{Results\_overlaps\_mix}, \texttt{Results\_xor\_mix}, \texttt{Results\_overlaps\_incol} and \texttt{Results\_xor\_incol} are used for demonstration and the influence of different parameter settings of the method on the resulting NMDS plot (e.g. groups, colors). All of them are attached to the package.\\ \newline
+In the following the datasets \texttt{Results\_overlaps\_mix}, \texttt{Results\_xor\_mix}, \texttt{Results\_overlaps\_incol} and \texttt{Results\_xor\_incol} are used for demonstration and the influence of different parameter settings of the method on the resulting NMDS plot (e.g. groups, colors). The 4 datasets are attached to the package.\\ \newline
 \texttt{Results\_overlaps\_mix} and \texttt{Results\_xor\_mix} contain the results after performing the last three steps on the first downloadable dataset. \texttt{Results\_overlaps\_incol} and \texttt{Results\_xor\_incol} contain the results after performing the last three steps on the second downloadable dataset. For the second dataset the boundaries for creating the subset histogram images were adapted. The contents of these datasets (excerpts) are shown before the plots.
 \newpage
 
@@ -383,7 +385,7 @@ plot_nmds(Results_overlaps_incol,Results_xor_incol,group=groups)
 \end{figure}
 
 
-In addition, abiotic parameters/gate information can be added to the NMDS plot suggesting the differences found within the plot. In this example the attached dataset \texttt{abiotic\_incol} is used for demonstration. This dataset contains abiotic data for every sample. The content looks as follows (excerpt):
+In addition, abiotic parameters/gate information can be added to the NMDS plot suggesting the differences found within the plot. In this example the attached dataset \texttt{abiotic\_incol} is used for demonstration. This dataset contains experimental data for every sample. The content looks as follows (excerpt):
 
 <<abioticincol, echo=TRUE>>=
 # Load dataset
@@ -433,7 +435,7 @@ plot_nmds(Results_overlaps_incol,Results_xor_incol,group=groups,abiotic=abiotic_
 
 \newpage
 
-Now, the legend is placed to the top right corner of the plot, the color of the arrows is changed to \texttt{"darkred"} and the maximum p-value is set to 0.01. All abiotic parameters/gate information less or equal the maximum p-value are added to the plot. The number of parameters may change due the results of the NMDS plot are a little bit different everytime the method is called.
+Now, the legend is placed to the top right corner of the plot, the color of the arrows is changed to \texttt{"darkred"} and the maximum p-value is set to 0.01. All abiotic parameters less or equal the maximum p-value are added to the plot. Small variations are possible because the results of the NMDS plot vary slightly everytime the method is called.
 
 \begin{figure}[h]
 \begin{center}
