@@ -12,8 +12,8 @@ A package to analyze flow cytometric data of complex microbial communities based
 \tabular{ll}{
 Package: \tab flowCHIC\cr
 Type: \tab Package\cr
-Version: \tab 0.99.0\cr
-Date: \tab 2014-09-30\cr
+Version: \tab 1.0.1\cr
+Date: \tab 2014-11-26\cr
 License: \tab GPL-2\cr
 }
 abiotic_incol
@@ -33,6 +33,6 @@ Results_overlaps_incol
 Approach for the Detection of Dynamic Variations in Complex Microbial Communities.
 Cytometry Part A, 2013.}}
 
-\seealso{\code{\link[flowCore:flowCore-package]{flowCore}},\code{\link[flowViz:flowViz-package]{flowViz}},\code{\link[flowCyBar:flowCyBar-package]{flowCyBar}},\code{\link[flowViz:flowViz-package]{flowViz}}}
+\seealso{\code{\link[flowCore:flowCore-package]{flowCore}},\code{\link[flowViz:flowViz-package]{flowViz}},\code{\link[flowCyBar:flowCyBar-package]{flowCyBar}}}
 
 \keyword{package}

@@ -21,8 +21,7 @@ Cytometry Part A, 2013.}}
 \author{Joachim Schumann \email{joachim.schumann@ufz.de}, Christin Koch \email{christin.koch@ufz.de}, Ingo Fetzer \email{info.fetzer@stockholmresilience.su.se}, Susann Müller \email{susann.mueller@ufz.de}}
 
 \examples{
-require(flowCore)
-require(ggplot2)
+require(EBImage)
 
 ## Calculate the overlap and XOR images
 ## Save the returned values as a list

@@ -16,8 +16,8 @@ definition = function (subsets,verbose=FALSE) {
   inverse = function(x) (x-1)*(-1) # inverse an image
   
   bXOR = function(x, y) {         # perform XOR on two images
-    x = round(x * (2^8-1),digits=3)
-    y = round(y * (2^8-1),digits=3)
+    x = round(x@.Data * (2^8-1),digits=3)
+    y = round(y@.Data * (2^8-1),digits=3)
     x = x * (2^8-1)
     y = y * (2^8-1)
     xo = bitwXor(x, y)
