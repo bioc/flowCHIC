@@ -4,7 +4,7 @@ Type: Package
 Title: Analyze flow cytometric data using histogram information
 Version: 1.0.1
 Date: 2014-11-26
-Author: Author: Joachim Schumann <joachim.schumann@ufz.de>, Christin Koch <christin.koch@ufz.de>, Ingo Fetzer <info.fetzer@stockholmresilience.su.se>, Susann Müller <susann.mueller@ufz.de>
+Author: Joachim Schumann <joachim.schumann@ufz.de>, Christin Koch <christin.koch@ufz.de>, Ingo Fetzer <info.fetzer@stockholmresilience.su.se>, Susann Müller <susann.mueller@ufz.de>
 Maintainer: Author: Joachim Schumann <joachim.schumann@ufz.de>
 Description: A package to analyze flow cytometric data of complex microbial communities based on histogram images
 License: GPL-2
