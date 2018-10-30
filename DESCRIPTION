@@ -2,7 +2,7 @@ Package: flowCHIC
 Encoding: UTF-8
 Type: Package
 Title: Analyze flow cytometric data using histogram information
-Version: 1.16.0
+Version: 1.17.0
 Date: 2015-03-05
 Author: Joachim Schumann <joachim.schumann@ufz.de>, Christin Koch <christin.koch@ufz.de>, Ingo Fetzer <info.fetzer@stockholmresilience.su.se>, Susann Müller <susann.mueller@ufz.de>
 Maintainer: Author: Joachim Schumann <joachim.schumann@ufz.de>
